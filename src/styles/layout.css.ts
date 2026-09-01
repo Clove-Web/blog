@@ -4,8 +4,8 @@
  * See LICENCE.md in the project root for full licence information.
  */
 /* src/styles/layout.css.ts
- * Shared header chrome (.pfp / .hub-header / .pronouns), ported from the
- * personal site, plus a small top nav for the standalone blog.
+ * Shared header chrome (.hub-header / .pronouns), ported from the personal
+ * site.
  */
 import { globalStyle, keyframes } from "@vanilla-extract/css";
 import { vars } from "./themes.css";
@@ -13,16 +13,6 @@ import { vars } from "./themes.css";
 // Shared trans-flag gradient title, uniform across every site.
 const transSlide = keyframes({
   to: { backgroundPositionX: "200%" },
-});
-
-globalStyle(".pfp", {
-  width: 96,
-  height: 96,
-  borderRadius: "50%",
-  objectFit: "cover",
-  border: `3px solid ${vars.warning}`,
-  boxShadow: "0 4px 18px rgba(245, 194, 231, 0.25)",
-  marginBottom: "0.75rem",
 });
 
 globalStyle(".hub-header", {

@@ -71,8 +71,6 @@ export default async function PostPage({
   return (
     <main className="blog-contents">
       <header className="blog-header">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="pfp" src={AVATAR} alt="Clove Twilight avatar" />
         <h1>{post.title}</h1>
         <p className="blog-meta">
           By {post.user} · {post.date.label} · {post.readingMinutes} min read
