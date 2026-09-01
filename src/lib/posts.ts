@@ -4,9 +4,10 @@
  * See LICENCE.md in the project root for full licence information.
  */
 /* src/lib/posts.ts
- * Markdown-file content pipeline. Posts live in content/posts/<slug>.md, where
- * the slug is DDMMYYYY-name (the date is parsed from it, mirroring the original
- * site's convention). Frontmatter carries the rest of the metadata.
+ * Markdown-file content pipeline. Posts live in content/posts/<slug>.md and the
+ * filename is the URL — name it whatever reads well. Frontmatter carries the
+ * metadata, including the publication `date`. A legacy DDMMYYYY-name slug still
+ * supplies the date when a file has no `date:` of its own.
  *
  * Server-only: this reads the filesystem, so it must never be imported into a
  * "use client" module.
@@ -14,7 +15,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { marked } from "marked";
+import { renderMarkdown } from "./markdown";
+import { AUTHOR } from "./site";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
@@ -27,7 +29,10 @@ const MONTHS = [
 export interface PostFrontmatter {
   title?: string;
   excerpt?: string;
-  thumbnail?: string;
+  /** Publication date. YAML parses an unquoted 2026-09-01 into a Date. */
+  date?: string | Date;
+  /** Who wrote the post. Falls back to AUTHOR when omitted. */
+  user?: string;
   tags?: string[];
   /** When true, the body is gated behind a content warning + blur. */
   sensitive?: boolean;
@@ -41,7 +46,8 @@ export interface PostMeta {
   slug: string;
   title: string;
   excerpt: string;
-  thumbnail?: string;
+  /** Byline — the frontmatter `user`, or AUTHOR when the post doesn't set one. */
+  user: string;
   tags: string[];
   sensitive: boolean;
   warning?: string;
@@ -57,26 +63,59 @@ export interface Post extends PostMeta {
   html: string;
 }
 
-function parseSlugDate(slug: string): PostMeta["date"] & { timestamp: number } {
-  const m = /^(\d{2})(\d{2})(\d{4})-/.exec(slug);
-  if (!m) {
-    // Undated slug — fall back to epoch so it sorts last but never crashes.
-    return { day: 0, month: 0, year: 0, iso: "", label: "", timestamp: 0 };
-  }
-  const [, dd, mm, yyyy] = m;
-  const day = parseInt(dd, 10);
-  const month = parseInt(mm, 10);
-  const year = parseInt(yyyy, 10);
-  const iso = `${yyyy}-${mm}-${dd}`;
-  const label = `${day} ${MONTHS[month - 1] ?? ""} ${year}`;
+type DatedMeta = PostMeta["date"] & { timestamp: number };
+
+/** Sorts last and renders as nothing — used when a post has no usable date. */
+const NO_DATE: DatedMeta = {
+  day: 0,
+  month: 0,
+  year: 0,
+  iso: "",
+  label: "",
+  timestamp: 0,
+};
+
+function makeDate(year: number, month: number, day: number): DatedMeta {
+  const pad = (n: number) => String(n).padStart(2, "0");
   return {
     day,
     month,
     year,
-    iso,
-    label,
-    timestamp: new Date(year, month - 1, day).getTime(),
+    iso: `${year}-${pad(month)}-${pad(day)}`,
+    label: `${day} ${MONTHS[month - 1] ?? ""} ${year}`,
+    // UTC so the sort key doesn't shift with the build machine's timezone.
+    timestamp: Date.UTC(year, month - 1, day),
   };
+}
+
+/**
+ * The frontmatter `date:`. YAML hands us a Date for an unquoted 2026-09-01 and a
+ * string for a quoted one, so accept both.
+ */
+function parseFrontmatterDate(value: string | Date | undefined): DatedMeta | null {
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null;
+    // A date-only YAML value lands on UTC midnight; reading it back in UTC stops
+    // a negative local offset rolling it to the previous day.
+    return makeDate(
+      value.getUTCFullYear(),
+      value.getUTCMonth() + 1,
+      value.getUTCDate(),
+    );
+  }
+  if (typeof value === "string") {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+    if (m) return makeDate(parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10));
+  }
+  return null;
+}
+
+/** Legacy DDMMYYYY-name slugs, still honoured so old files keep their dates. */
+function parseSlugDate(slug: string): DatedMeta | null {
+  const m = /^(\d{2})(\d{2})(\d{4})-/.exec(slug);
+  if (!m) return null;
+  const [, dd, mm, yyyy] = m;
+  return makeDate(parseInt(yyyy, 10), parseInt(mm, 10), parseInt(dd, 10));
 }
 
 function titleFromSlug(slug: string): string {
@@ -110,7 +149,8 @@ function readRaw(slug: string): { data: PostFrontmatter; content: string } | nul
 }
 
 function toMeta(slug: string, fm: PostFrontmatter, content: string): PostMeta {
-  const { timestamp, ...date } = parseSlugDate(slug);
+  const { timestamp, ...date } =
+    parseFrontmatterDate(fm.date) ?? parseSlugDate(slug) ?? NO_DATE;
   const excerpt =
     fm.excerpt ??
     content.replace(/[#>*_`~-]/g, "").trim().split("\n")[0]?.slice(0, 160) ??
@@ -119,8 +159,8 @@ function toMeta(slug: string, fm: PostFrontmatter, content: string): PostMeta {
     slug,
     title: fm.title ?? titleFromSlug(slug),
     excerpt,
-    thumbnail: fm.thumbnail,
-    tags: fm.tags ?? [],
+    user: fm.user?.trim() || AUTHOR,
+    tags: (fm.tags ?? []).map((t) => String(t).trim()).filter(Boolean),
     sensitive: fm.sensitive ?? false,
     warning: fm.warning,
     disclaimer: fm.disclaimer,
@@ -146,6 +186,6 @@ export function getPost(slug: string): Post | null {
   const raw = readRaw(slug);
   if (!raw) return null;
   const meta = toMeta(slug, raw.data, raw.content);
-  const html = marked.parse(raw.content, { async: false });
+  const html = renderMarkdown(raw.content);
   return { ...meta, html };
 }

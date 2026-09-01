@@ -8,20 +8,6 @@
  * server components and "use client" components).
  */
 
-/**
- * Canonical categories, shown as filter chips in a fixed order even before a
- * post uses them. Any extra tags found in posts are appended after these.
- * Add or reorder freely — the filter bar and post frontmatter both read this.
- */
-export const CATEGORIES = [
-  "Dev Notes",
-  "General Life",
-  "Personal",
-  "Projects",
-  "Mental Health",
-  "Meta",
-] as const;
-
 /** URL-safe slug used for filtering + the ?tag= query ("General Life" -> "general-life"). */
 export function tagSlug(tag: string): string {
   return tag

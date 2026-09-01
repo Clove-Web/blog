@@ -32,6 +32,7 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
+    authors: [{ name: post.user }],
     alternates: { canonical: url },
     openGraph: {
       type: "article",
@@ -40,7 +41,8 @@ export async function generateMetadata({
       description: post.excerpt,
       url,
       locale: "en_GB",
-      images: [{ url: post.thumbnail ?? AVATAR, alt: `${post.title} thumbnail` }],
+      authors: [post.user],
+      images: [{ url: AVATAR, alt: "Clove Twilight avatar" }],
     },
   };
 }
@@ -73,7 +75,7 @@ export default async function PostPage({
         <img className="pfp" src={AVATAR} alt="Clove Twilight avatar" />
         <h1>{post.title}</h1>
         <p className="blog-meta">
-          {post.date.label} · {post.readingMinutes} min read
+          By {post.user} · {post.date.label} · {post.readingMinutes} min read
         </p>
         {post.tags.length > 0 ? (
           <div className="blog-tags blog-tags--header">

@@ -1,10 +1,8 @@
 ---
 title: Welcome to the blog
 excerpt: Kicking off the blog with a quick intro to what I'll be posting here.
-thumbnail: /assets/favicon.png
-tags:
-  - General Life
-  - Meta
+date: 2026-07-05
+user: Clove
 ---
 
 So Hi!

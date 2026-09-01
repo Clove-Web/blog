@@ -1,7 +1,8 @@
 ---
 title: About Me
 excerpt: More in-depth about me, my past and who I am.
-thumbnail: /assets/favicon.png
+date: 2026-07-30
+user: Clove
 tags:
   - Personal
   - Mental Health
@@ -39,8 +40,6 @@ As I continue moving forward, I'm grateful for the lessons I've learned and for 
 
 ## Further Reading
 
-Before writing this full account of my life, I shared a smaller part of my story through TransActual in 2024, focusing specifically on my experiences with transphobia, coming out, and how music became an escape and a way for me to reclaim myself.
+UPDATED September 1st, 2021:
 
-If you would like to read more about that part of my journey, you can find that article here: [*How Music Helped Me Escape Abuse and Reclaim Myself*](https://transactual.org/2024/11/04/how-music-helped-me-escape-abuse-and-reclaim-myself/)
-
-This was written before I began sharing my story in its full context, so it focuses more on my experiences as a trans person facing rejection and abuse rather than the wider experiences that shaped me before that point.
+It seems that the TransActual post, and the site itself was nuked off the face of the earth, so I have removed the URL.

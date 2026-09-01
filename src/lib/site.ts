@@ -10,5 +10,5 @@
 export const SITE_URL = "https://doughmination.site";
 export const SITE_NAME = "Clove Twilight's Blog";
 export const SITE_TAGLINE = "Random Yapping and Stuff";
-export const AUTHOR = "Clove Twilight";
+export const AUTHOR = "Clove";
 export const AVATAR = "https://m.doughmination.gay/img/avatars/favicon.png";

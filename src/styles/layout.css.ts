@@ -79,28 +79,3 @@ globalStyle(".page", {
   display: "flex",
   flexDirection: "column",
 });
-
-/* ---- standalone blog top nav ---------------------------------------------- */
-
-globalStyle(".site-nav", {
-  width: "100%",
-  maxWidth: 680,
-  margin: "0 auto 1.5rem",
-  display: "flex",
-  gap: "1rem",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "0.9rem",
-  position: "relative",
-  zIndex: 1,
-});
-
-globalStyle(".site-nav a", {
-  color: vars.textMuted,
-  textDecoration: "none",
-  transition: "color 0.15s ease",
-});
-
-globalStyle(".site-nav a:hover", {
-  color: vars.accent,
-});

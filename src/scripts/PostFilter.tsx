@@ -5,8 +5,10 @@
  */
 /* src/scripts/PostFilter.tsx
  * Client-side tag filter for the blog index. Renders a chip bar plus the card
- * grid, and narrows the visible cards to the selected tag. The initial tag is
- * read from the ?tag= query after mount, so the index page itself stays static.
+ * grid, and narrows the visible cards to the selected tag. The chips are derived
+ * from the tags the posts actually declare in their frontmatter — there is no
+ * preset category list. The initial tag is read from the ?tag= query after
+ * mount, so the index page itself stays static.
  */
 
 "use client";
@@ -18,13 +20,7 @@ import { tagSlug, tagHash } from "@lib/tags";
 
 const ALL = "all";
 
-export default function PostFilter({
-  posts,
-  categories,
-}: {
-  posts: PostMeta[];
-  categories: readonly string[];
-}) {
+export default function PostFilter({ posts }: { posts: PostMeta[] }) {
   const [active, setActive] = useState<string>(ALL);
 
   // Seed from ?tag= after mount (keeps first render identical to the server's).
@@ -33,18 +29,21 @@ export default function PostFilter({
     if (t) setActive(t);
   }, []);
 
-  // Chips: canonical categories first, then any extra tags posts actually use.
+  // Chips: every tag any post declares, de-duplicated by slug (so "Dev Notes"
+  // and "dev notes" collapse into one) and sorted so the bar stays stable as
+  // posts come and go.
   const chips = useMemo(() => {
-    const seen = new Map<string, string>(); // slug -> label
-    for (const c of categories) seen.set(tagSlug(c), c);
+    const seen = new Map<string, string>(); // slug -> first-seen label
     for (const p of posts) {
       for (const t of p.tags) {
         const s = tagSlug(t);
         if (!seen.has(s)) seen.set(s, t);
       }
     }
-    return [...seen.entries()].map(([slug, label]) => ({ slug, label }));
-  }, [posts, categories]);
+    return [...seen.entries()]
+      .map(([slug, label]) => ({ slug, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [posts]);
 
   const visible =
     active === ALL
@@ -90,9 +89,10 @@ export default function PostFilter({
           {visible.map((post) => (
             <Link key={post.slug} className="blog-card" href={`/${post.slug}`}>
               <div className="blog-card-body">
-                <time className="blog-card-date" dateTime={post.date.iso}>
-                  {post.date.label} · {post.readingMinutes} min read
-                </time>
+                <p className="blog-card-date">
+                  <time dateTime={post.date.iso}>{post.date.label}</time> ·{" "}
+                  {post.user} · {post.readingMinutes} min read
+                </p>
                 <h3 className="blog-card-title">{post.title}</h3>
                 {post.excerpt ? (
                   <p className="blog-card-excerpt">{post.excerpt}</p>

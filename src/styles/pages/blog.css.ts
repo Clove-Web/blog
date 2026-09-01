@@ -122,20 +122,6 @@ globalStyle(".blog-card:focus-visible", {
   outlineOffset: 2,
 });
 
-globalStyle(".blog-card-thumb", {
-  width: "100%",
-  aspectRatio: "16 / 9",
-  overflow: "hidden",
-  background: vars.bgDeep,
-});
-
-globalStyle(".blog-card-thumb img", {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  display: "block",
-});
-
 globalStyle(".blog-card-body", {
   display: "flex",
   flexDirection: "column",
@@ -144,6 +130,7 @@ globalStyle(".blog-card-body", {
 });
 
 globalStyle(".blog-card-date", {
+  margin: 0,
   fontSize: "0.78rem",
   fontWeight: 600,
   letterSpacing: "0.02em",
@@ -240,6 +227,20 @@ globalStyle(".blog-contents", {
 /* ---- markdown body elements ----------------------------------------------- */
 
 globalStyle(".blog-contents p", { margin: "0 0 1.1rem" });
+
+/* Discord-style `-# ` subtext: an aside that hangs quietly under the line it
+   annotates. The negative top margins collapse against the previous block's
+   1.1rem, closing the gap so it reads as attached rather than as its own
+   paragraph. */
+globalStyle(".blog-contents .subtext", {
+  margin: "0 0 1.1rem",
+  fontSize: "0.8rem",
+  lineHeight: 1.5,
+  color: vars.textMuted,
+});
+
+globalStyle(".blog-contents * + .subtext", { marginTop: "-0.75rem" });
+globalStyle(".blog-contents .subtext + .subtext", { marginTop: "-1rem" });
 
 globalStyle(".blog-contents img", {
   maxWidth: "100%",

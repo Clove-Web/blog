@@ -6,9 +6,8 @@
 /* src/app/layout.tsx */
 
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import SoundFX from "./SoundFX";
-import { SITE_URL, SITE_NAME } from "@lib/site";
+import { SITE_URL, SITE_NAME, AUTHOR } from "@lib/site";
 // One fixed palette. Importing for side effects emits the :root token block at
 // build time; see src/styles/themes.css.ts. Import order IS the cascade order.
 import "@styles/themes.css";
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
   },
   description:
     "The personal blog of Clove Twilight — life updates, thoughts, and the occasional deep-dive.",
-  authors: [{ name: "Clove Twilight" }],
+  authors: [{ name: AUTHOR }],
   robots: {
     index: true,
     follow: true,
@@ -71,13 +70,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://m.doughmination.gay" />
       </head>
       <body>
-        <div className="page">
-          <nav className="site-nav">
-            <Link href="/">Home</Link>
-            <a href="https://doughmination.gay">Main site</a>
-          </nav>
-          {children}
-        </div>
+        <div className="page">{children}</div>
         <SoundFX />
       </body>
     </html>
